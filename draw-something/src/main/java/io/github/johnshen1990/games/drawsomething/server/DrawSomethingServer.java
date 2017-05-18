@@ -11,23 +11,24 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
-public class DrawSomethingServer implements InitializingBean, DisposableBean {
-
-    @Autowired
-    private DrawSomethingServerHandler drawSomethingServerHandler;
+@WebListener
+public class DrawSomethingServer implements ServletContextListener {
 
     EventLoopGroup bossGroup = new NioEventLoopGroup();
     EventLoopGroup workerGroup = new NioEventLoopGroup();
 
+    ChannelFuture future;
+
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void contextInitialized(ServletContextEvent sce) {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workerGroup)
+        bootstrap
+                .group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .localAddress(8087)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
@@ -37,16 +38,31 @@ public class DrawSomethingServer implements InitializingBean, DisposableBean {
                                 .addLast("http-codec", new HttpServerCodec())
                                 .addLast("aggregator", new HttpObjectAggregator(65536))
                                 .addLast("http-chunked", new ChunkedWriteHandler())
-                                .addLast("handler", drawSomethingServerHandler);
+                                .addLast("handler", new DrawSomethingServerHandler());
                     }
                 });
-        ChannelFuture future = bootstrap.bind().sync();
-        future.channel().closeFuture().sync();
+        try {
+            System.out.println("Socket is starting ...");
+            future = bootstrap.bind().sync();
+            System.out.println("Socket is listening ...");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void destroy() throws Exception {
-        bossGroup.shutdownGracefully().sync();
-        workerGroup.shutdownGracefully().sync();
+    public void contextDestroyed(ServletContextEvent sce) {
+        try {
+            System.out.println("Destroying the channel ...");
+            if(future != null) {
+                future.channel().close().sync();
+            }
+            System.out.println("Shutting down the worker group ...");
+            workerGroup.shutdownGracefully().sync();
+            System.out.println("Shutting down the boss group ...");
+            bossGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
