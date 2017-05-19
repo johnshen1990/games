@@ -11,6 +11,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -18,6 +20,8 @@ import javax.servlet.annotation.WebListener;
 
 @WebListener
 public class DrawSomethingServer implements ServletContextListener {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     EventLoopGroup bossGroup = new NioEventLoopGroup();
     EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -42,27 +46,27 @@ public class DrawSomethingServer implements ServletContextListener {
                     }
                 });
         try {
-            System.out.println("Socket is starting ...");
+            logger.info("Socket is starting ...");
             future = bootstrap.bind().sync();
-            System.out.println("Socket is listening ...");
+            logger.info("Socket is listening ...");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("contextInitialized error", e);
         }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         try {
-            System.out.println("Destroying the channel ...");
+            logger.info("Destroying the channel ...");
             if(future != null) {
                 future.channel().close().sync();
             }
-            System.out.println("Shutting down the worker group ...");
+            logger.info("Shutting down the worker group ...");
             workerGroup.shutdownGracefully().sync();
-            System.out.println("Shutting down the boss group ...");
+            logger.info("Shutting down the boss group ...");
             bossGroup.shutdownGracefully().sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("contextDestroyed error", e);
         }
     }
 }
