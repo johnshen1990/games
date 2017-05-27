@@ -7,6 +7,7 @@ import io.github.johnshen1990.games.drawsomething.message.RoomInfoMessage;
 import io.github.johnshen1990.games.drawsomething.shared.AesKeyInstance;
 import io.github.johnshen1990.games.drawsomething.utils.AesUtil;
 import io.github.johnshen1990.games.drawsomething.utils.Base64Util;
+import io.github.johnshen1990.games.drawsomething.utils.XssUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -51,6 +52,7 @@ public class DrawSomethingServerHandler extends ChannelHandlerAdapter {
             for (Channel channel : channels) {
                 byte[] incomingEncryptedBytes = Base64Util.convertBase64String2Bytes(tmp.text());
                 String decryptedString = AesUtil.decryptFromAES(incomingEncryptedBytes, AesKeyInstance.INSTANCE.get("1"));
+                decryptedString = XssUtil.xssEncode(decryptedString);
                 byte[] outcomingEncryptedBytes = AesUtil.encryptToAES("来自[" + incoming.remoteAddress() + "]的逗比说：" + decryptedString, AesKeyInstance.INSTANCE.get("1"));
                 channel.writeAndFlush(new TextWebSocketFrame(Base64Util.convertBytes2Base64String(outcomingEncryptedBytes)));
             }

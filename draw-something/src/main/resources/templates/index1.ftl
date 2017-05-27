@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html style="-webkit-text-size-adjust: 100%; line-height: 1.60">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
     <script type="application/javascript" src="aes.js"></script>
     <script type="application/javascript" src="mode-cfb-min.js"></script>
