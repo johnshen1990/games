@@ -10,8 +10,8 @@ $(function(){
 
     if(window.WebSocket){
         // socket = new WebSocket("ws://104.224.157.172:8087/");
-        //socket = new WebSocket("ws://23.106.137.141:8087/");
-        socket = new WebSocket("ws://127.0.0.1:8087/");
+        socket = new WebSocket("ws://23.106.137.141:8087/");
+        //socket = new WebSocket("ws://127.0.0.1:8087/");
         socket.onmessage = function(event){
             if(event.data.startsWith('RES:KEY:')) {
                 key = event.data.substring(8);
